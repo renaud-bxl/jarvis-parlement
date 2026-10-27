@@ -156,7 +156,15 @@ class Api:
                 'sources':read_json(ROOT/'config/sources.json',{})}
         if action == 'models': return {'models': providers.models(data.get('provider'))}
         if action == 'test_ai':
-            result = providers.complete('Réponds uniquement : Jarvis est prêt.', settings(), system='Réponds en français.')
+            cfg=settings()
+            if 'provider' in data or 'model' in data:
+                provider=data.get('provider')
+                model=str(data.get('model') or '').strip()
+                if provider not in providers.PROVIDERS: raise ValueError('Fournisseur inconnu.')
+                if provider.endswith('_app'): raise ValueError('Le transfert manuel ne possède pas de connexion automatique à tester.')
+                if not model: raise ValueError('Sélectionne un modèle dans la liste avant de le tester.')
+                cfg={**cfg,'provider':provider,'model':model}
+            result = providers.complete('Réponds uniquement : Jarvis est prêt.', cfg, system='Réponds en français.')
             if result.get('handoff'): raise ValueError('Le transfert manuel ne possède pas de connexion automatique à tester.')
             return result
         if action == 'unschedule':

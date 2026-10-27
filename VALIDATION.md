@@ -35,3 +35,6 @@ Le message générique d’une ancienne version ne permet pas de reconstruire la
 
 ## Correctif 3.0.3 : lecture vocale des courriers
 61 tests locaux réussis, dont le nettoyage de l’exemple Markdown échappé, la conservation des libellés français, les annonces distinctes, l’isolation des courriers et l’absence d’appel IA si la boîte est vide. Chaque synthèse utilise Ollama sans recherche web. Le nettoyage s’applique à tous les appels vocaux, automatiques et manuels. L’écoute sur le Mac de l’utilisateur reste à vérifier.
+
+## Correctif 3.0.4 : choix du modèle et test
+65 tests locaux réussis. Le test transmet le fournisseur et le modèle actuellement sélectionnés sans modifier les réglages enregistrés. Sélection vide et fournisseur inconnu refusés ; le diagnostic conserve le modèle effectivement testé. Contrôle navigateur avec un connecteur simulé : huit options visibles, huitième modèle sélectionné et transmis sans enregistrement. Ce contrôle ne valide pas une génération avec le compte personnel de l’utilisateur.
