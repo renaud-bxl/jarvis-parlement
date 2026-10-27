@@ -1,6 +1,6 @@
 {
-  "version": "3.0.4",
-  "url": "https://raw.githubusercontent.com/renaud-bxl/jarvis-parlement/main/dist/Jarvis-Parlement-3.0.4-macOS.zip",
-  "sha256": "d7f0afe0d091326bbafaa1128c8868b467b82e3dde9c360010579b43f0d280b1",
-  "notes": "Liste complète des modèles et test du choix affiché sans enregistrer au préalable."
+  "version": "3.0.5",
+  "url": "https://raw.githubusercontent.com/renaud-bxl/jarvis-parlement/main/dist/Jarvis-Parlement-3.0.5-macOS.zip",
+  "sha256": "e0fb5fbe4cc68d60b7f9b3fbed8634404da0d7bc806c2bdca3ff48743a1836ec",
+  "notes": "Liste complète des modèles, exclusion des modèles retirés et contrôle des clés non enregistrées."
 }

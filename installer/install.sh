@@ -25,7 +25,7 @@ trap cleanup EXIT
 MAJOR="$(sw_vers -productVersion | cut -d. -f1)"
 [[ "$MAJOR" -ge 14 ]] || { step -1 'Cette version nécessite macOS 14 Sonoma ou ultérieur.'; exit 1; }
 TMP="$(mktemp -d -t jarvis-install)"
-RELEASE="$BASE/versions/3.0.4-$(date +%Y%m%d-%H%M%S)-$$"
+RELEASE="$BASE/versions/3.0.5-$(date +%Y%m%d-%H%M%S)-$$"
 mkdir -p "$RELEASE"
 cp -R "$SOURCE/." "$RELEASE/"
 step 5 'Détection et sauvegarde de l’installation existante…'

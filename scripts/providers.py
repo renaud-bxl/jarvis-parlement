@@ -6,6 +6,7 @@ import urllib.error
 import urllib.request
 import time
 from diagnostics import failure
+from model_catalog import available_text_models, shutdown
 from common import CONFIG, ROOT, SERVICE
 
 PROVIDERS = ('ollama', 'chatgpt', 'openai', 'anthropic', 'chatgpt_app', 'claude_app')
@@ -79,7 +80,7 @@ def models(provider):
     if provider == 'openai':
         result = request_json('https://api.openai.com/v1/models',
             headers={'Authorization':'Bearer ' + secret(provider)})
-        return sorted(m['id'] for m in result.get('data', []) if m['id'].startswith(('gpt-', 'o3', 'o4')))
+        return available_text_models(result.get('data', []))
     if provider == 'anthropic':
         result = request_json('https://api.anthropic.com/v1/models',
             headers={'x-api-key':secret(provider), 'anthropic-version':'2023-06-01'})
@@ -96,6 +97,8 @@ def complete(prompt, cfg, web=False, private=False, system=''):
         return {'handoff':True, 'prompt':system+'\n\n'+prompt, 'app':provider,
             'text':'Transfert manuel : copie la demande, ouvre l’application, puis colle la réponse dans Jarvis.'}
     if not model: raise ValueError('Choisis un modèle dans Paramètres > IA.')
+    if provider=='openai' and shutdown(model):
+        raise ValueError('Le modèle '+model+' a été retiré de l’API OpenAI le '+shutdown(model)+'. Recharge les modèles et sélectionne un modèle disponible.')
     if provider == 'ollama':
         ensure_ollama()
         details=request_json('http://127.0.0.1:11434/api/show',{'model':model})

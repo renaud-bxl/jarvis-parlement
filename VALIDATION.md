@@ -38,3 +38,7 @@ Le message générique d’une ancienne version ne permet pas de reconstruire la
 
 ## Correctif 3.0.4 : choix du modèle et test
 65 tests locaux réussis. Le test transmet le fournisseur et le modèle actuellement sélectionnés sans modifier les réglages enregistrés. Sélection vide et fournisseur inconnu refusés ; le diagnostic conserve le modèle effectivement testé. Contrôle navigateur avec un connecteur simulé : huit options visibles, huitième modèle sélectionné et transmis sans enregistrement. Ce contrôle ne valide pas une génération avec le compte personnel de l’utilisateur.
+
+## Correctif 3.0.5 : modèles retirés et clé saisie
+69 tests locaux réussis. GPT-4o reste dans la liste quand l’API le renvoie. Les modèles arrêtés (notamment GPT-3.5 Turbo au 23 octobre 2026) sont écartés ; shutdown_date de l’API est pris en compte. Les variantes audio/image ne sont pas proposées pour le connecteur texte. Un ancien GPT-3.5 enregistré produit une explication avant toute requête. La clé encore présente dans le formulaire bloque chargement et test tant qu’elle n’est pas enregistrée, pour éviter l’utilisation silencieuse d’une ancienne clé.
+Source des retraits : https://developers.openai.com/api/docs/deprecations (vérifiée le 27 octobre 2026).
