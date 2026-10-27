@@ -22,7 +22,7 @@ stage=HOME/'Applications'/('Jarvis Parlement.build-'+str(os.getpid())+'.app')
 exe=stage/'Contents/MacOS';exe.mkdir(parents=True)
 resources=stage/'Contents/Resources';resources.mkdir()
 info={'CFBundleName':'Jarvis Parlement','CFBundleDisplayName':'Jarvis Parlement','CFBundleIdentifier':'net.compose.jarvis-parlement',
-    'CFBundleVersion':'3.0.0','CFBundleShortVersionString':'3.0.0','CFBundleExecutable':'Jarvis','CFBundlePackageType':'APPL',
+    'CFBundleVersion':'3.0.1','CFBundleShortVersionString':'3.0.1','CFBundleExecutable':'Jarvis','CFBundlePackageType':'APPL',
     'NSMicrophoneUsageDescription':'Jarvis transcrit votre voix localement lorsque vous activez le microphone.', 'NSHighResolutionCapable':True,'LSMinimumSystemVersion':'14.0','CFBundleIconFile':'Jarvis.icns'}
 (stage/'Contents/Info.plist').write_bytes(plistlib.dumps(info))
 if (ROOT/'assets/Jarvis.icns').exists():shutil.copy2(ROOT/'assets/Jarvis.icns',resources/'Jarvis.icns')

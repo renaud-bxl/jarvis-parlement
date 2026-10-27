@@ -15,7 +15,7 @@ class AssistantTests(unittest.TestCase):
  def test_account_selection(self):
   with patch.object(services,'accounts',return_value={'pro':{},'perso':{}}),patch.object(services,'mail_summary',return_value={'text':'mails'}) as m:
    r=self.a.turn({'query':'Check mes mails'});self.assertEqual(r['choices'],['pro','perso']);m.assert_not_called()
-   self.a.turn({'query':'perso'});m.assert_called_once_with({'account':'perso'})
+   self.a.turn({'query':'perso'});m.assert_called_once_with({'account':'perso'});self.assertEqual(self.a.history[-1]['text'],'mails');self.assertTrue(self.a.history[-1]['private'])
  def test_missing_account_opens_settings(self):
   with patch.object(services,'accounts',return_value={}):self.assertEqual(self.a.turn({'query':'Lis mes mails'})['navigate'],'settings')
  def test_topic_followup(self):
@@ -115,3 +115,12 @@ class PlannerTests(unittest.TestCase):
  def test_explanations_and_negation_do_not_read_mail(self):
   a=assistant.Assistant()
   self.assertEqual(a.route('Ne lis pas mes mails'),'chat');self.assertEqual(a.route('Comment lire mes mails ?'),'chat')
+
+class FollowupTests(unittest.TestCase):
+ def test_draft_followup_exports_with_context(self):
+  a=assistant.Assistant();a.document_context=True;a.history=[{'role':'assistant','text':'Projet initial'}]
+  with patch.object(services,'chat',return_value={'text':'Révision','files':['revision.docx']}) as call:
+   r=a.execute('chat','Rends le texte plus court',{})
+   self.assertIn('revision.docx',r['files']);self.assertFalse(call.call_args.args[0]['web']);self.assertEqual(call.call_args.args[0]['history'][0]['text'],'Projet initial')
+ def test_reset_clears_document_context(self):
+  a=assistant.Assistant();a.document_context=True;a.reset();self.assertFalse(a.document_context)

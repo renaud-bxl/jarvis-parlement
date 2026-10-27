@@ -1,8 +1,8 @@
-# Validation de JARVIS 3.0.0 candidate
+# Validation de JARVIS 3.0.1 candidate
 
 ## Vérifié dans l’environnement Linux de construction
 
-- 42 tests unitaires réussis, dont les 17 tests de non-régression V2.
+- 44 tests unitaires réussis, dont les 17 tests de non-régression V2.
 - Conversation : commandes françaises, reformulations via plan IA limité, choix de compte, sujet manquant, modèle Word requis, mémoire privée, blocage des recherches et plannings publics après données privées, annulation, confirmation à usage unique, refus de requêtes concurrentes.
 - SMTP : validation des en-têtes et destinataires, octets identiques à la prévisualisation, confirmation native, annulation sans envoi.
 - Mise à jour : comparaison de versions, refus d’une URL extérieure au dépôt, empreinte invalide, archive avec traversée de chemin ; ouverture de l’installateur validée avec un processus simulé.
@@ -10,6 +10,10 @@
 - Interface : contrôle visuel dans Chromium avec pont natif simulé ; accueil, commande mails, affichage de la réponse, confirmation de planning, panneau de mise à jour, sélection de voix, message d’erreur audio.
 - Syntaxe Python, JavaScript et shell ; contenu ZIP et empreinte du paquet.
 - Les tests V2 couvrent encore les exports des trois modèles DOCX, l’identité personnalisée, l’index local et la restauration du planning en cas d’erreur.
+
+## Validation macOS automatisée
+
+Le workflow GitHub Actions du commit 605073ac8273e9db34c5327c94f1fe92b52e0fdc (3.0.0) a réussi sur macos-latest : installation des dépendances complètes, imports natifs et interface OpenJarvis, 42 tests de régression, syntaxe et contrôle SHA-256. Résultat : https://github.com/renaud-bxl/jarvis-parlement/actions/runs/40588307642 . La version 3.0.1 ajoute deux tests de continuité de conversation ; le workflow est relancé à chaque publication. Ce runner ne teste ni une session utilisateur interactive ni un microphone réel.
 
 ## À valider sur un Mac et des comptes de test
 
