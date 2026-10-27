@@ -13,6 +13,7 @@ import urllib.request
 import wave
 import zipfile
 from common import CONFIG, ROOT, settings
+from speech_text import for_speech
 
 VOICES={'siwis':'Français · féminine (Siwis)', 'tom':'Français · masculine (Tom)'}
 MODEL='vosk-model-small-fr-0.22'
@@ -80,7 +81,7 @@ class Voice:
         return {'text':'Arrêt demandé.'}
 
     def speak(self, data):
-        text=str(data.get('text','')).strip()[:12000]
+        text=for_speech(data.get('text',''))[:12000]
         selected=data.get('voice') or settings().get('voice_model','siwis')
         if selected not in VOICES:raise ValueError('Voix inconnue.')
         if not text:raise ValueError('Aucun texte à lire.')

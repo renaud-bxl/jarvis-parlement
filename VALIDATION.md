@@ -32,3 +32,6 @@ Le paquet contient des sources Python/JS et un lanceur .app ; il est assemblé, 
 Douze nouveaux tests couvrent les erreurs de flux ChatGPT, HTTP, OAuth et API, la conservation du code de cause, la séparation des quotas et des limites de sortie, la fin de flux sans ligne vide finale, les réponses malformées, les causes inconnues et l’absence de secrets dans le diagnostic persisté. Les 56 tests passent localement. La CI macOS est relancée sur le commit publié.
 
 Le message générique d’une ancienne version ne permet pas de reconstruire la cause réelle a posteriori. Reproduire l’échec avec 3.0.2 et consulter/copier le diagnostic. Aucun correctif de quota ou de compte personnel n’est revendiqué sans cette preuve.
+
+## Correctif 3.0.3 : lecture vocale des courriers
+61 tests locaux réussis, dont le nettoyage de l’exemple Markdown échappé, la conservation des libellés français, les annonces distinctes, l’isolation des courriers et l’absence d’appel IA si la boîte est vide. Chaque synthèse utilise Ollama sans recherche web. Le nettoyage s’applique à tous les appels vocaux, automatiques et manuels. L’écoute sur le Mac de l’utilisateur reste à vérifier.

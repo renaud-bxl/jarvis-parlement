@@ -8,7 +8,7 @@ import zipfile
 from pathlib import Path
 from common import HOME
 from voice import checked_download
-VERSION='3.0.2'
+VERSION='3.0.3'
 MANIFEST='https://raw.githubusercontent.com/renaud-bxl/jarvis-parlement/main/dist/latest.json'
 PREFIX='https://raw.githubusercontent.com/renaud-bxl/jarvis-parlement/main/dist/'
 
