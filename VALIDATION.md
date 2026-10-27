@@ -42,3 +42,7 @@ Le message générique d’une ancienne version ne permet pas de reconstruire la
 ## Correctif 3.0.5 : modèles retirés et clé saisie
 69 tests locaux réussis. GPT-4o reste dans la liste quand l’API le renvoie. Les modèles arrêtés (notamment GPT-3.5 Turbo au 23 octobre 2026) sont écartés ; shutdown_date de l’API est pris en compte. Les variantes audio/image ne sont pas proposées pour le connecteur texte. Un ancien GPT-3.5 enregistré produit une explication avant toute requête. La clé encore présente dans le formulaire bloque chargement et test tant qu’elle n’est pas enregistrée, pour éviter l’utilisation silencieuse d’une ancienne clé.
 Source des retraits : https://developers.openai.com/api/docs/deprecations (vérifiée le 27 octobre 2026).
+
+## Version 3.0.6 : courriers
+78 tests locaux réussis, dont HTML seul, retrait des scripts et ressources distantes, image CID intégrée, Reply-To et Message-ID, réponse avec références, ajout de fichiers à un courrier ou à un EML multipart existant, conservation des octets approuvés, limite du nombre de pièces et rejet d’injection d’en-tête. Correction également d’un rejet des destinataires lorsque Cc était vide.
+Contrôle navigateur avec messages synthétiques : titres et tableau HTML rendus dans un iframe isolé, bouton Répondre, destinataire Reply-To et objet préremplis, compte SMTP distinct. Aucun mail réel envoyé lors de la validation ; transport et rendu WebKit sur le Mac utilisateur restent à confirmer.

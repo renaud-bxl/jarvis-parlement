@@ -17,6 +17,7 @@ from email.utils import formatdate, make_msgid
 from email.utils import getaddresses
 from pathlib import Path
 import keyring
+from mail_content import content, message_data
 
 CFG = Path.home() / '.config/jarvis-parlement/accounts.json'
 SERVICE = 'jarvis-parlement'
@@ -39,8 +40,7 @@ def secret(account, kind):
     return value
 
 def body(msg):
-    part = msg.get_body(preferencelist=('plain',))
-    return part.get_content()[:20000] if part else '[Sans texte brut]'
+    return content(msg)['body']
 
 def gmail_client(account):
     from google.oauth2.credentials import Credentials
@@ -65,9 +65,7 @@ def read_mail(account, cfg, limit):
                 userId='me', id=row['id'], format='raw').execute()['raw']
             msg = BytesParser(policy=policy.default).parsebytes(
                 base64.urlsafe_b64decode(raw))
-            print(json.dumps({'account': account, 'id': row['id'],
-                'from': str(msg['From']), 'subject': str(msg['Subject']),
-                'date': str(msg['Date']), 'body': body(msg)}, ensure_ascii=False))
+            print(json.dumps(message_data(msg,account,id=row['id']),ensure_ascii=False))
     else:
         with imaplib.IMAP4_SSL(cfg['imap_host'], cfg['imap_port'],
                 ssl_context=ssl.create_default_context(), timeout=30) as m:
@@ -84,9 +82,7 @@ def read_mail(account, cfg, limit):
                     raise ValueError('Lecture IMAP impossible.')
                 raw = next(x[1] for x in data if isinstance(x, tuple))
                 msg = BytesParser(policy=policy.default).parsebytes(raw)
-                print(json.dumps({'account': account, 'uid': uid.decode(),
-                    'from': str(msg['From']), 'subject': str(msg['Subject']),
-                    'date': str(msg['Date']), 'body': body(msg)}, ensure_ascii=False))
+                print(json.dumps(message_data(msg,account,uid=uid.decode()),ensure_ascii=False))
 
 def send_mail(account, cfg, filename):
     if cfg['type'] != 'imap':

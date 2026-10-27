@@ -45,16 +45,19 @@ def mail_preview(data):
         if len(senders)!=1 or senders[0][1].lower()!=account['address'].lower(): raise ValueError('L’expéditeur du .eml doit correspondre au compte SMTP sélectionné.')
         recipients=[a for _,a in getaddresses(msg.get_all('To',[])+msg.get_all('Cc',[]))]
         if not recipients or any(not re.fullmatch(r'[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+',a) for a in recipients): raise ValueError('Destinataires .eml invalides.')
-        part=msg.get_body(preferencelist=('plain',))
-        body=part.get_content() if part else '[Pas de version texte. Ouvre le .eml dans Mail avant de valider.]'
-        attachments=[p.get_filename() or 'Pièce jointe sans nom' for p in msg.iter_attachments()]
-        fields={'to':str(msg.get('To','')),'cc':str(msg.get('Cc','')),'subject':str(msg.get('Subject','')),
-            'body':str(body)[:50000]+('\n\nPièces jointes : '+', '.join(attachments) if attachments else '')}
+        if data.get('attachments'):
+            if msg.get_content_type() in ('multipart/signed','multipart/encrypted'):raise ValueError('Impossible d’ajouter des pièces à un message signé ou chiffré. Rédige un nouveau courrier.')
+            add_mail_attachments(msg,data['attachments'])
+            raw=msg.as_bytes(policy=policy.SMTP)
+        from mail_content import content
+        fields={'to':str(msg.get('To','')),'cc':str(msg.get('Cc','')),'subject':str(msg.get('Subject','')),**content(msg),
+            'attachments':attachment_manifest(msg)}
+        if len(raw)>30*1024*1024:raise ValueError('Message complet limité à 30 Mo.')
         return account.copy(),recipients,raw,fields
     fields = {k: str(data.get(k, '')).strip() for k in ['to','cc','subject','body']}
     if any('\r' in fields[k] or '\n' in fields[k] for k in ['to','cc','subject']):
         raise ValueError('En-tête invalide.')
-    recipients = [addr for _, addr in getaddresses([fields['to'],fields['cc']])]
+    recipients = [addr for _, addr in getaddresses([v for v in (fields['to'],fields['cc']) if v])]
     if not fields['to'] or not recipients or any(not re.fullmatch(r'[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+', a) for a in recipients):
         raise ValueError('Destinataire invalide.')
     if not fields['subject'] or not fields['body'] or len(fields['body']) > 100000:
@@ -63,8 +66,36 @@ def mail_preview(data):
     msg['From'] = account['address']; msg['To'] = fields['to']
     if fields['cc']: msg['Cc'] = fields['cc']
     msg['Subject'] = fields['subject']; msg['Date'] = formatdate(localtime=True); msg['Message-ID'] = make_msgid()
+    for header,key in [('In-Reply-To','in_reply_to'),('References','references')]:
+        value=str(data.get(key,'')).strip()
+        if value:
+            if len(value)>4000 or not re.fullmatch(r'<[^<>\s]+>(?:\s+<[^<>\s]+>)*',value):raise ValueError('Référence de réponse invalide.')
+            msg[header]=value
     msg.set_content(fields['body'])
-    return account.copy(), recipients, msg.as_bytes(), fields
+    add_mail_attachments(msg,data.get('attachments',[]))
+    fields['attachments']=attachment_manifest(msg)
+    from email import policy
+    raw=msg.as_bytes(policy=policy.SMTP)
+    if len(raw)>30*1024*1024:raise ValueError('Message complet limité à 30 Mo.')
+    return account.copy(), recipients, raw, fields
+
+
+def add_mail_attachments(msg,files):
+    import mimetypes,re
+    if not isinstance(files,list) or len(files)>20:raise ValueError('Maximum 20 pièces jointes.')
+    total=0
+    for item in files:
+        payload=services.decode_file(item);total+=len(payload)
+        if total>20*1024*1024:raise ValueError('Pièces jointes limitées à 20 Mo au total.')
+        name=str(item.get('name','pièce-jointe')).replace('\\','/').split('/')[-1]
+        name=re.sub(r'[\x00-\x1f\x7f]','',name)[:200] or 'pièce-jointe'
+        mime=mimetypes.guess_type(name)[0] or 'application/octet-stream'
+        main,sub=mime.split('/',1)
+        msg.add_attachment(payload,maintype=main,subtype=sub,filename=name)
+
+def attachment_manifest(msg):
+    return [{'name':p.get_filename() or 'Pièce jointe sans nom','size':len(p.get_payload(decode=True) or b'')}
+        for p in msg.walk() if p.get_content_disposition()=='attachment' or p.get_filename()]
 
 
 def smtp_send(pending):
