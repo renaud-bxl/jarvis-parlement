@@ -1,0 +1,22 @@
+{
+  "fr_FR-siwis-medium.onnx": {
+    "url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/fr/fr_FR/siwis/medium/fr_FR-siwis-medium.onnx",
+    "sha256": "641d1ab097da2b81128c076810edb052b385decc8be3381814802a64a73baf99"
+  },
+  "fr_FR-siwis-medium.onnx.json": {
+    "url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/fr/fr_FR/siwis/medium/fr_FR-siwis-medium.onnx.json",
+    "sha256": "39479916c2db192b5ac9764daddd0c744d83e023ad890c6976c0633ae4df8959"
+  },
+  "fr_FR-tom-medium.onnx": {
+    "url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/fr/fr_FR/tom/medium/fr_FR-tom-medium.onnx",
+    "sha256": "bf65074ccdeeeeaa832e75edb1c0a513c01c9a972bdf085ff8a6e71ea234fd41"
+  },
+  "fr_FR-tom-medium.onnx.json": {
+    "url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/fr/fr_FR/tom/medium/fr_FR-tom-medium.onnx.json",
+    "sha256": "2f7f885ad5a0aad802e3cc24e4f57239febdcb142b4876de5d238094674361cc"
+  },
+  "vosk-model-small-fr-0.22.zip": {
+    "url": "https://alphacephei.com/vosk/models/vosk-model-small-fr-0.22.zip",
+    "sha256": "cabf6180e177eb9b3a9a9d43a437bd5e549f3a7d09525e5d69a3fed787be12ad"
+  }
+}

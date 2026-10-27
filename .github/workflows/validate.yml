@@ -1,0 +1,31 @@
+name: Validate Jarvis
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  macos:
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install application dependencies
+        run: python -m pip install -r requirements.txt pillow
+      - name: Check native imports and SDK compatibility
+        run: python scripts/desktop.py --check
+      - name: Regression tests
+        run: python -m unittest discover -s tests -v
+      - name: Syntax checks
+        run: |
+          python -m compileall -q scripts installer tools
+          node --check ui/app.js
+          node --check ui/assistant.js
+          bash -n install.sh installer/install.sh
+      - name: Verify published package checksum
+        run: cd dist && shasum -a 256 -c SHA256SUMS

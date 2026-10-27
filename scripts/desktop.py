@@ -12,6 +12,9 @@ from uuid import uuid4
 from common import CONFIG, HOME, REPORTS, ROOT, SERVICE, WORK, initialize, read_json, settings
 import services
 import providers
+from assistant import Assistant
+from voice import Voice
+import updater
 
 
 def safe_url(value):
@@ -81,6 +84,8 @@ def smtp_send(pending):
 class Api:
     def __init__(self):
         self._window = None
+        self.assistant = Assistant()
+        self.voice = Voice()
         self._speech = None
         self._pending = {}
         self._mutex = threading.RLock()
@@ -98,6 +103,17 @@ class Api:
             return {'ok': False, 'error': 'Opération impossible (' + type(exc).__name__ + '). Vérifie les paramètres et le diagnostic.'}
 
     def _dispatch(self, action, data):
+        if action == 'assistant': return self.assistant.turn(data)
+        if action == 'assistant_reset': return self.assistant.reset()
+        if action == 'assistant_confirm': return self.assistant.confirm(data)
+        if action == 'voice_state': return self.voice.state()
+        if action == 'voice_install': return self.voice.install()
+        if action == 'voice_listen':
+            with self._mutex: return self.voice.listen()
+        if action == 'voice_stop':
+            with self._mutex: return self.voice.stop()
+        if action == 'update_check': return updater.check()
+        if action == 'update_install': return updater.install()
         functions = {'chat': services.chat, 'briefing': services.briefing,
             'mail_summary': services.mail_summary, 'calendar': services.calendar_events,
             'google_connect': services.google_connect, 'imap_connect': services.imap_connect,
@@ -125,7 +141,7 @@ class Api:
             import chatgpt_auth
             import templates
             return {'settings': settings(), 'accounts': services.accounts(),
-                'chatgpt': chatgpt_auth.status(), 'version':'2.0.0', 'reports':self._reports(),
+                'chatgpt': chatgpt_auth.status(), 'version':updater.VERSION, 'reports':self._reports(),
                 'templates':templates.catalog(),
                 'sources':read_json(ROOT/'config/sources.json',{})}
         if action == 'models': return {'models': providers.models(data.get('provider'))}
@@ -180,17 +196,12 @@ class Api:
         if action == 'import_answer':
             return services.save_result({'text':str(data.get('text',''))[:100000], 'private':True}, 'Réponse importée — à vérifier')
         if action == 'speak':
-            self._stop_speech()
-            text = str(data.get('text','')).strip()
-            if not text: raise ValueError('Aucun texte à lire.')
-            self._speech = subprocess.Popen(['say'], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            self._speech.stdin.write(text[:50000].encode()); self._speech.stdin.close()
-            return {'text':'Lecture en cours.'}
-        if action == 'stop_speech': self._stop_speech(); return {'text':'Lecture arrêtée.'}
+            with self._mutex: return self.voice.speak(data)
+        if action == 'stop_speech': return self.voice.stop()
         raise ValueError('Action inconnue.')
 
     def _stop_speech(self):
-        if self._speech and self._speech.poll() is None: self._speech.terminate()
+        self.voice.stop()
 
     def _reports(self):
         results=[]
@@ -222,6 +233,8 @@ def main():
         return 0
     import webview
     from AppKit import NSApplication, NSImage
+    from Foundation import NSBundle
+    NSBundle.mainBundle().infoDictionary()['NSMicrophoneUsageDescription'] = 'Jarvis transcrit votre voix localement quand vous activez le microphone.'
     app=NSApplication.sharedApplication()
     icon=ROOT/'assets/Jarvis.icns'
     if icon.exists(): app.setApplicationIconImage_(NSImage.alloc().initWithContentsOfFile_(str(icon)))

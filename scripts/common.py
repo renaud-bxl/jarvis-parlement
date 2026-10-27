@@ -11,7 +11,7 @@ REPORTS = WORK / '08-Rapports'
 SERVICE = 'jarvis-parlement'
 DEFAULTS = {'provider': 'ollama', 'model': '', 'local_model':'', 'themes':
     'mobilité, logement, sécurité, urbanisme, patrimoine, finances',
-    'voice': False, 'include_mail_in_briefing': False,
+    'voice': False, 'voice_model':'siwis', 'include_mail_in_briefing': False,
     'include_calendar_in_briefing': False, 'briefing_time': '10:30',
     'schedule_enabled': False, 'cloud_private_data': False,
     'full_name':'', 'role':'', 'institution':'', 'language':'fr', 'collaborator':'', 'tour_seen':False}

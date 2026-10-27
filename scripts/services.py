@@ -254,7 +254,7 @@ def save_settings(data):
     if data.get('provider',cfg['provider']) not in PROVIDERS: raise ValueError('Fournisseur inconnu.')
     for key in ['provider','model','themes','voice','cloud_private_data','include_mail_in_briefing',
                 'include_calendar_in_briefing','briefing_time','schedule_enabled',
-                'full_name','role','institution','language','collaborator','tour_seen']:
+                'full_name','role','institution','language','collaborator','tour_seen','voice_model']:
         if key in data: cfg[key]=data[key]
     for key in ['full_name','role','institution','collaborator']:
         cfg[key]=str(cfg.get(key,'')).strip()[:200]
@@ -263,6 +263,7 @@ def save_settings(data):
     if not re.fullmatch(r'([01]\d|2[0-3]):[0-5]\d',str(cfg['briefing_time'])): raise ValueError('Heure : HH:MM, par exemple 10:30.')
     if cfg['provider'].endswith('_app') and cfg.get('schedule_enabled'):
         raise ValueError('Les apps externes nécessitent une intervention manuelle. Choisis une API ou Ollama pour les briefings automatiques.')
+    if cfg.get('voice_model') not in ('siwis','tom'): raise ValueError('Voix française inconnue.')
     old=settings()
     atomic_json(CONFIG/'settings.json',cfg)
     try:
