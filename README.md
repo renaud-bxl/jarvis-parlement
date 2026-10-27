@@ -1,10 +1,10 @@
 # JARVIS – PARLEMENT
 
-Assistant visuel macOS, avec conversation écrite et vocale locale, pour préparer des recherches, interpellations, briefings, synthèses de courriers et documents parlementaires. Version 3.0.1 candidate, destinée à une première validation sur Mac.
+Assistant visuel macOS, avec conversation écrite et vocale locale, pour préparer des recherches, interpellations, briefings, synthèses de courriers et documents parlementaires. Version 3.0.2 candidate, destinée à une première validation sur Mac.
 
 ## Installer
 
-Décompresser `Jarvis-Parlement-3.0.1-macOS.zip`, puis ouvrir **Installer Jarvis Parlement.app**. L'installateur crée **Jarvis Parlement.app** dans `~/Applications`. Il détecte les composants présents, conserve les comptes et documents du kit V1, sauvegarde les réglages et reprend le planning existant, dont 10 h 30 lorsqu'il était configuré.
+Décompresser `Jarvis-Parlement-3.0.2-macOS.zip`, puis ouvrir **Installer Jarvis Parlement.app**. L'installateur crée **Jarvis Parlement.app** dans `~/Applications`. Il détecte les composants présents, conserve les comptes et documents du kit V1, sauvegarde les réglages et reprend le planning existant, dont 10 h 30 lorsqu'il était configuré.
 
 macOS 14 minimum, Apple Silicon ou Intel ; connexion Internet pendant l'installation. Plusieurs gigaoctets peuvent être nécessaires pour Python, Ollama, un modèle local et LibreOffice. Aucun `sudo`. La distribution n'est pas signée ni notariée Apple ; une autorisation d'ouverture peut être requise. Ne pas désactiver Gatekeeper.
 

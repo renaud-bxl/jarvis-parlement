@@ -1,8 +1,8 @@
-# Validation de JARVIS 3.0.1 candidate
+# Validation de JARVIS 3.0.2 candidate
 
 ## Vérifié dans l’environnement Linux de construction
 
-- 44 tests unitaires réussis, dont les 17 tests de non-régression V2.
+- 56 tests unitaires réussis, dont les 17 tests de non-régression V2.
 - Conversation : commandes françaises, reformulations via plan IA limité, choix de compte, sujet manquant, modèle Word requis, mémoire privée, blocage des recherches et plannings publics après données privées, annulation, confirmation à usage unique, refus de requêtes concurrentes.
 - SMTP : validation des en-têtes et destinataires, octets identiques à la prévisualisation, confirmation native, annulation sans envoi.
 - Mise à jour : comparaison de versions, refus d’une URL extérieure au dépôt, empreinte invalide, archive avec traversée de chemin ; ouverture de l’installateur validée avec un processus simulé.
@@ -26,3 +26,9 @@ Le workflow GitHub Actions du commit 605073ac8273e9db34c5327c94f1fe92b52e0fdc (3
 ## Limites de distribution
 
 Le paquet contient des sources Python/JS et un lanceur .app ; il est assemblé, pas compilé ni notarié sur un Mac. La signature et la notarisation Apple restent absentes. Un avertissement système peut apparaître. Les comptes externes sont simulés dans les tests de logique : un test réussi ne prouve pas la disponibilité de leur service ni les permissions d’un compte. Le ZIP reste une version candidate, pas une certification de fonctionnement sur toutes les machines.
+
+## Correctif 3.0.2 : diagnostics fournisseurs
+
+Douze nouveaux tests couvrent les erreurs de flux ChatGPT, HTTP, OAuth et API, la conservation du code de cause, la séparation des quotas et des limites de sortie, la fin de flux sans ligne vide finale, les réponses malformées, les causes inconnues et l’absence de secrets dans le diagnostic persisté. Les 56 tests passent localement. La CI macOS est relancée sur le commit publié.
+
+Le message générique d’une ancienne version ne permet pas de reconstruire la cause réelle a posteriori. Reproduire l’échec avec 3.0.2 et consulter/copier le diagnostic. Aucun correctif de quota ou de compte personnel n’est revendiqué sans cette preuve.

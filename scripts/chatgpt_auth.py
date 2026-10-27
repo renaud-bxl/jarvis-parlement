@@ -8,6 +8,8 @@ import threading
 import time
 import urllib.parse
 import urllib.request
+import urllib.error
+from diagnostics import failure
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from uuid import uuid4
@@ -27,8 +29,17 @@ def _json(url, data=None):
         with urllib.request.urlopen(request, timeout=30) as response:
             raw = response.read()
             return json.loads(raw) if raw else {}
-    except Exception:
-        raise ValueError('Connexion ChatGPT refusée ou indisponible. Reconnecte le compte ; vérifie son éligibilité et les autorisations.') from None
+    except urllib.error.HTTPError as exc:
+        try:body=json.loads(exc.read(65536))
+        except (ValueError,OSError):body={}
+        raise failure('ChatGPT','authorization',body,status=exc.code,request_id=exc.headers.get('x-request-id')) from None
+    except TimeoutError:
+        raise failure('ChatGPT','authorization',fallback='request_timeout') from None
+    except (urllib.error.URLError,OSError):
+        raise failure('ChatGPT','authorization',fallback='network_error') from None
+    except ValueError:
+        raise failure('ChatGPT','authorization',fallback='invalid_stream') from None
+
 
 
 def _trusted_endpoint(url):
@@ -209,18 +220,41 @@ def disconnect(data):
 def response(payload):
     request = urllib.request.Request(RESOURCE + '/responses', data=json.dumps({**payload,
         'stream': True, 'store': False}).encode(), headers={'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + access_token()})
+        'Accept':'text/event-stream', 'Authorization': 'Bearer ' + access_token()})
+    request_id=None
+    def process(lines):
+        raw='\n'.join(lines)
+        if raw.strip()=='[DONE]':return None
+        try:event=json.loads(raw)
+        except (ValueError,TypeError):raise failure('ChatGPT','generation',fallback='invalid_stream',request_id=request_id,model=payload.get('model')) from None
+        if not isinstance(event,dict):raise failure('ChatGPT','generation',fallback='invalid_stream',request_id=request_id,model=payload.get('model'))
+        kind=event.get('type')
+        if kind=='response.completed':
+            result=event.get('response')
+            if not isinstance(result,dict):raise failure('ChatGPT','generation',fallback='invalid_stream',request_id=request_id,model=payload.get('model'))
+            return result
+        if kind in ('error','response.failed','response.incomplete'):
+            raise failure('ChatGPT','generation',event,request_id=request_id,model=payload.get('model'),event=kind)
     try:
         with urllib.request.urlopen(request, timeout=300) as reply:
-            pending = []
+            request_id=reply.headers.get('x-request-id')
+            pending=[]
             for raw in reply:
-                line = raw.decode('utf-8').rstrip('\r\n')
-                if line.startswith('data:'): pending.append(line[5:].lstrip())
+                try:line=raw.decode('utf-8').rstrip('\r\n')
+                except UnicodeError:raise failure('ChatGPT','generation',fallback='invalid_stream',request_id=request_id,model=payload.get('model')) from None
+                if line.startswith('data:'):pending.append(line[5:].lstrip())
                 elif not line and pending:
-                    event = json.loads('\n'.join(pending)); pending = []
-                    if event.get('type') == 'response.completed': return event['response']
-                    if event.get('type') in ('error', 'response.failed', 'response.incomplete'):
-                        raise ValueError('La réponse ChatGPT n’a pas abouti. Vérifie les limites et le modèle.')
-    except (OSError, TimeoutError):
-        raise ValueError('ChatGPT indisponible, session expirée ou limite du forfait atteinte. Vérifie la connexion dans Paramètres.') from None
-    raise ValueError('Flux ChatGPT interrompu ; aucune réponse complète reçue.')
+                    result=process(pending);pending=[]
+                    if result is not None:return result
+            if pending:
+                result=process(pending)
+                if result is not None:return result
+    except urllib.error.HTTPError as exc:
+        try:body=json.loads(exc.read(65536))
+        except (ValueError,OSError):body={}
+        raise failure('ChatGPT','generation',body,status=exc.code,request_id=exc.headers.get('x-request-id'),model=payload.get('model')) from None
+    except TimeoutError:
+        raise failure('ChatGPT','generation',fallback='request_timeout',request_id=request_id,model=payload.get('model')) from None
+    except (urllib.error.URLError,OSError):
+        raise failure('ChatGPT','generation',fallback='network_error',request_id=request_id,model=payload.get('model')) from None
+    raise failure('ChatGPT','generation',fallback='stream_interrupted',request_id=request_id,model=payload.get('model'))

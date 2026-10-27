@@ -15,6 +15,7 @@ import providers
 from assistant import Assistant
 from voice import Voice
 import updater
+import diagnostics
 
 
 def safe_url(value):
@@ -96,6 +97,9 @@ class Api:
             if not isinstance(data, dict): raise ValueError('Requête invalide.')
             result = self._dispatch(action, data)
             return {'ok': True, 'data': result}
+        except diagnostics.ProviderError as exc:
+            diagnostics.record(exc)
+            return {'ok':False,'error':str(exc),'diagnostic':exc.diagnostic}
         except ValueError as exc:
             return {'ok': False, 'error': str(exc)}
         except Exception as exc:
@@ -112,6 +116,12 @@ class Api:
             with self._mutex: return self.voice.listen()
         if action == 'voice_stop':
             with self._mutex: return self.voice.stop()
+        if action == 'diagnostic_last': return diagnostics.last()
+        if action == 'diagnostic_copy':
+            report=diagnostics.last()
+            if not report: raise ValueError('Aucun diagnostic fournisseur enregistré.')
+            subprocess.run(['pbcopy'],input=json.dumps(report,ensure_ascii=False,indent=2),text=True,check=True)
+            return {'text':'Diagnostic copié, sans clé, jeton, message ni document.'}
         if action == 'update_check': return updater.check()
         if action == 'update_install': return updater.install()
         functions = {'chat': services.chat, 'briefing': services.briefing,

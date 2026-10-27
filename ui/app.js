@@ -4,7 +4,7 @@ let state={},history=[],handoff=null,templateId='',tourIndex=0,busy=0;
 const names={assistant:'Votre assistant',chat:'Recherche web et projet parlementaire',documents:'Documents locaux',mail:'Courriers et SMTP',calendar:'Google Calendar',briefing:'Briefing du jour',reports:'Rapports et exports',settings:'Configuration',templates:'Templates parlementaires',help:'Mode d’emploi'};
 const providerNames={ollama:'Ollama local',chatgpt:'Compte ChatGPT',openai:'OpenAI API',anthropic:'Claude API',chatgpt_app:'App ChatGPT · manuel',claude_app:'App Claude · manuel'};
 function message(text,error=false){$('status').textContent=text;$('status').className='status'+(error?' error':busy?' busy':'');}
-async function api(action,data={}){const r=await window.pywebview.api.call(action,data);if(!r.ok)throw Error(r.error);return r.data;}
+async function api(action,data={}){const r=await window.pywebview.api.call(action,data);if(!r.ok){if(r.diagnostic)showProviderDiagnostic(r.diagnostic);throw Error(r.error);}return r.data;}
 async function run(button,work,label='Opération en cours…'){if(button)button.disabled=true;busy++;message(label);try{return await work();}catch(e){message(e.message,true);}finally{busy--;if(button)button.disabled=false;if($('status').textContent===label)message('Terminé.');}}
 function bind(id,work,label){$(id).addEventListener('click',e=>run(e.currentTarget,work,label));}
 function tab(id,focus){$$('.page').forEach(x=>x.classList.toggle('active',x.id===id));$$('aside button[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===id&&(x.dataset.focus||'')===(focus||'')));$('pageTitle').textContent=names[id]||id;if(focus){const el=$(focus);if(el){if(el.tagName==='DETAILS')el.open=true;el.scrollIntoView({block:'center',behavior:'smooth'});}}else window.scrollTo(0,0);}
@@ -63,3 +63,8 @@ async function closeTour(){$('tour').classList.add('hidden');await api('save_set
 bind('startTour',async()=>{tourIndex=0;showTour();});bind('tourPrevious',async()=>{if(tourIndex>0)tourIndex--;showTour();});bind('tourNext',async()=>{if(tourIndex===tour.length-1){await closeTour();tab('settings','profilePanel');}else{tourIndex++;showTour();}});bind('tourClose',closeTour);
 async function boot(){try{await refresh();const m=await api('manual');$('manual').innerHTML=m.html;$$('#manual a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();run(null,()=>api('external_url',{url:a.href}));}));message('Prêt. '+(state.settings.full_name?'Profil : '+state.settings.full_name:'Complète ton profil avant la première rédaction.'));if(!state.settings.tour_seen){tourIndex=0;showTour();}}catch(e){message('Initialisation impossible : '+e.message,true);}}
 window.addEventListener('pywebviewready',boot);
+
+function showProviderDiagnostic(d){$('providerDiagnosticText').textContent=JSON.stringify(d,null,2);$('providerDiagnostic').classList.remove('hidden');$('providerDiagnostic').open=true;}
+bind('copyDiagnostic',async()=>message((await api('diagnostic_copy')).text));
+bind('hideDiagnostic',async()=>{$('providerDiagnostic').classList.add('hidden');message('Diagnostic masqué. Il reste accessible dans Configuration.');});
+bind('lastDiagnostic',async()=>{const d=await api('diagnostic_last');if(!d.code){message('Aucun diagnostic fournisseur enregistré. Relance le test IA pour en produire un.');return;}showProviderDiagnostic(d);$('providerDiagnostic').scrollIntoView({block:'center'});message('Dernier échec enregistré : consulte sa date dans le diagnostic.');});

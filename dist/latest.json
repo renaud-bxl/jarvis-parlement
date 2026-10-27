@@ -1,6 +1,6 @@
 {
-  "version": "3.0.1",
-  "url": "https://raw.githubusercontent.com/renaud-bxl/jarvis-parlement/main/dist/Jarvis-Parlement-3.0.1-macOS.zip",
-  "sha256": "3582e425d96f23c3e24a4119ed92c1a49f54eb517f86ac883337870026f133e5",
-  "notes": "Jarvis visuel, conversation et voix françaises locales, mises à jour intégrées."
+  "version": "3.0.2",
+  "url": "https://raw.githubusercontent.com/renaud-bxl/jarvis-parlement/main/dist/Jarvis-Parlement-3.0.2-macOS.zip",
+  "sha256": "857aa9820833d51f7bd1d93744da96c711c2727681970841fb927d717173d491",
+  "notes": "Diagnostics ChatGPT détaillés, codes HTTP/OAuth et correction de fin de flux."
 }

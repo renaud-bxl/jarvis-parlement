@@ -5,6 +5,7 @@ import subprocess
 import urllib.error
 import urllib.request
 import time
+from diagnostics import failure
 from common import CONFIG, ROOT, SERVICE
 
 PROVIDERS = ('ollama', 'chatgpt', 'openai', 'anthropic', 'chatgpt_app', 'claude_app')
@@ -33,8 +34,16 @@ def request_json(url, payload=None, headers=None, timeout=180):
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
             return json.load(response)
-    except (urllib.error.URLError, TimeoutError) as exc:
-        raise ValueError(safe_error(exc)) from None
+    except urllib.error.HTTPError as exc:
+        try:body=json.loads(exc.read(65536))
+        except (ValueError,OSError):body={}
+        provider='Claude API' if 'api.anthropic.com' in url else ('OpenAI / ChatGPT' if 'api.openai.com' in url else 'Ollama')
+        raise failure(provider,'request',body,status=exc.code,request_id=exc.headers.get('x-request-id'),model=(payload or {}).get('model')) from None
+    except TimeoutError:
+        raise failure('Service IA','request',fallback='request_timeout') from None
+    except urllib.error.URLError:
+        raise failure('Service IA','request',fallback='network_error') from None
+
 
 
 def ensure_ollama():
