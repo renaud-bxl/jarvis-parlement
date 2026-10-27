@@ -1,0 +1,10 @@
+{
+  "institutions": [
+    {"nom": "Parlement bruxellois", "url": "https://www.parlement.brussels/"},
+    {"nom": "Chambre des représentants", "url": "https://www.lachambre.be/"},
+    {"nom": "Sénat de Belgique", "url": "https://www.senate.be/"},
+    {"nom": "Parlement Benelux", "url": "https://www.beneluxparl.eu/fr/"},
+    {"nom": "Questions et réponses Benelux", "url": "https://www.beneluxparl.eu/fr/questions-ecrites-et-reponses/"}
+  ],
+  "note": "Répertoire de sources prioritaires, sans garantie de collecte exhaustive."
+}

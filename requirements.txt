@@ -1,0 +1,15 @@
+OpenJarvis==1.0.4
+pywebview>=6,<7
+pyobjc-core>=10; sys_platform == 'darwin'
+pyobjc-framework-Cocoa>=10; sys_platform == 'darwin'
+pyobjc-framework-Quartz>=10; sys_platform == 'darwin'
+pyobjc-framework-WebKit>=10; sys_platform == 'darwin'
+pyobjc-framework-Security>=10; sys_platform == 'darwin'
+keyring>=25,<26
+google-api-python-client>=2,<3
+google-auth-oauthlib>=1,<2
+google-auth-httplib2>=0.2,<1
+pdfplumber>=0.11,<1
+python-docx>=1.1,<2
+reportlab>=4,<5
+PyJWT[crypto]>=2.10,<3
